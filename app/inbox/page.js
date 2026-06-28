@@ -2,11 +2,13 @@
 
 import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 export default function InboxPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
+  const [emails, setEmails] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -14,8 +16,19 @@ export default function InboxPage() {
     }
   }, [status]);
 
-  if (status === "loading") {
-    return <div className="p-8">Loading...</div>;
+  useEffect(() => {
+    if (status === "authenticated") {
+      fetch("/api/emails")
+        .then((res) => res.json())
+        .then((data) => {
+          setEmails(data.emails || []);
+          setLoading(false);
+        });
+    }
+  }, [status]);
+
+  if (status === "loading" || loading) {
+    return <div className="p-8">Loading your emails...</div>;
   }
 
   return (
@@ -29,7 +42,19 @@ export default function InboxPage() {
           Sign out
         </button>
       </div>
-      <p>Welcome, {session?.user?.name}!</p>
+      <p className="mb-4">Welcome, {session?.user?.name}!</p>
+      <div>
+        {emails.map((email) => (
+          <div
+            key={email.id}
+            className="border border-gray-700 p-4 mb-2 rounded"
+          >
+            <p className="text-sm text-gray-400">{email.from}</p>
+            <p className="font-semibold">{email.subject}</p>
+            <p className="text-sm text-gray-400 mt-1">{email.snippet}</p>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
