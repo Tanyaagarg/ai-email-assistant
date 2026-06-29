@@ -1,5 +1,6 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "../../lib/auth";
+import sql from "../../lib/db";
 
 export async function GET() {
   const session = await getServerSession(authOptions);
@@ -30,6 +31,13 @@ export async function GET() {
       const headers = data.payload.headers;
       const subject = headers.find((h) => h.name === "Subject")?.value || "No Subject";
       const from = headers.find((h) => h.name === "From")?.value || "Unknown";
+
+      await sql`
+        INSERT INTO emails (user_email, gmail_id, subject, from_address, snippet)
+        VALUES (${session.user.email}, ${msg.id}, ${subject}, ${from}, ${data.snippet})
+        ON CONFLICT (gmail_id) DO NOTHING
+      `;
+
       return { id: msg.id, subject, from, snippet: data.snippet };
     })
   );
