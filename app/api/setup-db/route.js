@@ -22,5 +22,10 @@ export async function GET() {
     )
   `;
 
+  await sql`
+  ALTER TABLE emails 
+  ADD COLUMN IF NOT EXISTS summary TEXT
+`;
+
   return Response.json({ message: "Database tables created successfully!" });
 }

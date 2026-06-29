@@ -45,12 +45,10 @@ export default function InboxPage() {
       <p className="mb-4">Welcome, {session?.user?.name}!</p>
       <div>
         {emails.map((email) => (
-          <div
-            key={email.id}
-            className="border border-gray-700 p-4 mb-2 rounded"
-          >
+          <div key={email.id} className="border border-gray-700 p-4 mb-2 rounded">
             <p className="text-sm text-gray-400">{email.from}</p>
             <p className="font-semibold">{email.subject}</p>
+            <p className="text-sm text-blue-400 mt-1">AI Summary: {email.summary}</p>
             <p className="text-sm text-gray-400 mt-1">{email.snippet}</p>
           </div>
         ))}

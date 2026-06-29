@@ -1,6 +1,7 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "../../lib/auth";
 import sql from "../../lib/db";
+import { summarizeEmail } from "../../lib/gemini";
 
 export async function GET() {
   const session = await getServerSession(authOptions);
@@ -32,13 +33,15 @@ export async function GET() {
       const subject = headers.find((h) => h.name === "Subject")?.value || "No Subject";
       const from = headers.find((h) => h.name === "From")?.value || "Unknown";
 
+      const summary = await summarizeEmail(subject, from, data.snippet);
+
       await sql`
-        INSERT INTO emails (user_email, gmail_id, subject, from_address, snippet)
-        VALUES (${session.user.email}, ${msg.id}, ${subject}, ${from}, ${data.snippet})
-        ON CONFLICT (gmail_id) DO NOTHING
+        INSERT INTO emails (user_email, gmail_id, subject, from_address, snippet, summary)
+        VALUES (${session.user.email}, ${msg.id}, ${subject}, ${from}, ${data.snippet}, ${summary})
+        ON CONFLICT (gmail_id) DO UPDATE SET summary = ${summary}
       `;
 
-      return { id: msg.id, subject, from, snippet: data.snippet };
+      return { id: msg.id, subject, from, snippet: data.snippet, summary };
     })
   );
 
