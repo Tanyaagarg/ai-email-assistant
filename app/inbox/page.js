@@ -10,18 +10,24 @@ export default function InboxPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (status === "unauthenticated") { router.push("/login"); }
+    if (status === "unauthenticated") {
+      router.push("/login");
+    }
   }, [status]);
 
   useEffect(() => {
     if (status === "authenticated") {
       fetch("/api/emails")
         .then((res) => res.json())
-        .then((data) => { setEmails(data.emails || []); setLoading(false); });
+        .then((data) => {
+          setEmails(data.emails || []);
+          setLoading(false);
+        });
     }
   }, [status]);
 
-  if (status === "loading" || loading) return <div className="p-8">Loading your emails...</div>;
+  if (status === "loading" || loading)
+    return <div className="p-8">Loading your emails...</div>;
 
   const priorityColor = (priority) => {
     if (priority === "High") return "bg-red-500";
@@ -33,23 +39,45 @@ export default function InboxPage() {
     <div className="p-8">
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-2xl font-bold">Your Inbox</h1>
-        <button onClick={() => signOut({ callbackUrl: "/login" })} className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600">Sign out</button>
+        <div className="flex gap-4">
+          <button
+            onClick={() => router.push("/dashboard")}
+            className="bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600"
+          >
+            Do First 🔥
+          </button>
+          <button
+            onClick={() => signOut({ callbackUrl: "/login" })}
+            className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600"
+          >
+            Sign out
+          </button>
+        </div>
       </div>
       <p className="mb-4">Welcome, {session?.user?.name}!</p>
       <div>
         {emails.map((email) => (
-          <div key={email.id} className="border border-gray-700 p-4 mb-2 rounded">
+          <div
+            key={email.id}
+            className="border border-gray-700 p-4 mb-2 rounded"
+          >
             <div className="flex items-center gap-2 mb-1">
-              <span className={`text-xs text-white px-2 py-0.5 rounded-full ${priorityColor(email.priority)}`}>
+              <span
+                className={`text-xs text-white px-2 py-0.5 rounded-full ${priorityColor(email.priority)}`}
+              >
                 {email.priority || "Medium"}
               </span>
               {email.deadline && email.deadline !== "none" && (
-                <span className="text-xs text-orange-400">Deadline: {email.deadline}</span>
+                <span className="text-xs text-orange-400">
+                  Deadline: {email.deadline}
+                </span>
               )}
             </div>
             <p className="text-sm text-gray-400">{email.from}</p>
             <p className="font-semibold">{email.subject}</p>
-            <p className="text-sm text-blue-400 mt-1">AI Summary: {email.summary}</p>
+            <p className="text-sm text-blue-400 mt-1">
+              AI Summary: {email.summary}
+            </p>
             <p className="text-sm text-gray-400 mt-1">{email.snippet}</p>
           </div>
         ))}

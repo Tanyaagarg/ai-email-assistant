@@ -15,6 +15,11 @@ export async function GET() {
 
   const emails = await Promise.all(
     messages.map(async (msg) => {
+      const existing = await sql`SELECT * FROM emails WHERE gmail_id = ${msg.id}`;
+      if (existing.length > 0) {
+        return existing[0];
+      }
+
       const res = await fetch(`https://gmail.googleapis.com/gmail/v1/users/me/messages/${msg.id}?format=metadata&metadataHeaders=Subject&metadataHeaders=From`, {
         headers: { Authorization: `Bearer ${session.accessToken}` },
       });
@@ -28,9 +33,9 @@ export async function GET() {
 
       await sql`INSERT INTO emails (user_email, gmail_id, subject, from_address, snippet, summary, priority, deadline)
         VALUES (${session.user.email}, ${msg.id}, ${subject}, ${from}, ${data.snippet}, ${summary}, ${priority}, ${deadline})
-        ON CONFLICT (gmail_id) DO UPDATE SET summary = ${summary}, priority = ${priority}, deadline = ${deadline}`;
+        ON CONFLICT (gmail_id) DO NOTHING`;
 
-      return { id: msg.id, subject, from, snippet: data.snippet, summary, priority, deadline };
+      return { gmail_id: msg.id, subject, from_address: from, snippet: data.snippet, summary, priority, deadline };
     })
   );
 
