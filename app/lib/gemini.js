@@ -12,3 +12,30 @@ export async function summarizeEmail(subject, from, snippet) {
     return "Summary unavailable";
   }
 }
+
+export async function analyzeEmail(subject, from, snippet) {
+  try {
+    const prompt = `Analyze this email and respond in exactly this JSON format:
+{"priority": "High", "deadline": "none"}
+
+Priority must be one of: High, Medium, Low
+- High: urgent, action required, deadlines, important alerts
+- Medium: needs response but not urgent
+- Low: newsletters, promotions, notifications
+
+Deadline: extract any deadline mentioned (e.g. "by Friday", "due June 30") or write "none"
+
+Email:
+From: ${from}
+Subject: ${subject}
+Preview: ${snippet}
+
+Respond with only the JSON, nothing else.`;
+    const result = await model.generateContent(prompt);
+    const text = result.response.text().trim();
+    const json = JSON.parse(text);
+    return { priority: json.priority || "Medium", deadline: json.deadline || "none" };
+  } catch (error) {
+    return { priority: "Medium", deadline: "none" };
+  }
+}
