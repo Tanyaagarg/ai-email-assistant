@@ -39,3 +39,19 @@ Respond with only the JSON, nothing else.`;
     return { priority: "Medium", deadline: "none" };
   }
 }
+
+export async function generateReply(subject, from, snippet) {
+  try {
+    const prompt = `Write a short, professional reply to this email in 2-3 sentences. Be polite and natural.
+
+From: ${from}
+Subject: ${subject}
+Preview: ${snippet}
+
+Write only the reply text, no subject line, no "Dear" or sign-off needed.`;
+    const result = await model.generateContent(prompt);
+    return result.response.text().trim();
+  } catch (error) {
+    return "Thank you for your email. I will get back to you shortly.";
+  }
+}
