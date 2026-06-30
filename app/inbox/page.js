@@ -100,6 +100,38 @@ export default function InboxPage() {
     setBodyLoading(false);
   };
 
+  const handleStar = async (email) => {
+    const action = email.is_starred ? "unstar" : "star";
+    const res = await fetch(`/api/emails/${email.gmail_id}/modify`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action }),
+    });
+    if (res.ok) {
+      setEmails((prev) =>
+        prev.map((e) =>
+          e.gmail_id === email.gmail_id ? { ...e, is_starred: !e.is_starred } : e
+        )
+      );
+    }
+  };
+
+  const handleToggleRead = async (email) => {
+    const action = email.is_unread ? "read" : "unread";
+    const res = await fetch(`/api/emails/${email.gmail_id}/modify`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action }),
+    });
+    if (res.ok) {
+      setEmails((prev) =>
+        prev.map((e) =>
+          e.gmail_id === email.gmail_id ? { ...e, is_unread: !e.is_unread } : e
+        )
+      );
+    }
+  };
+
   const handleCompose = async () => {
     setComposeSending(true);
     const res = await fetch("/api/compose", {
@@ -336,7 +368,7 @@ export default function InboxPage() {
         {filteredEmails.map((email) => (
           <div
             key={email.gmail_id}
-            className="border border-gray-700 p-4 mb-2 rounded"
+            className={`border border-gray-700 p-4 mb-2 rounded ${email.is_unread ? "border-l-4 border-l-blue-500 bg-gray-900" : ""}`}
           >
             <div className="flex justify-between items-start">
               <div className="flex items-center gap-2 mb-1">
@@ -354,7 +386,20 @@ export default function InboxPage() {
                   </span>
                 )}
               </div>
-              <div className="flex gap-3">
+              <div className="flex gap-3 items-center">
+                <button
+                  onClick={() => handleStar(email)}
+                  className="text-sm hover:opacity-80"
+                  title="Star"
+                >
+                  {email.is_starred ? "⭐" : "☆"}
+                </button>
+                <button
+                  onClick={() => handleToggleRead(email)}
+                  className="text-xs text-gray-400 hover:text-gray-200"
+                >
+                  {email.is_unread ? "Mark read" : "Mark unread"}
+                </button>
                 <button
                   onClick={() => handleView(email)}
                   className="text-xs text-green-400 hover:text-green-300"
@@ -376,7 +421,9 @@ export default function InboxPage() {
               </div>
             </div>
             <p className="text-sm text-gray-400">{email.from_address}</p>
-            <p className="font-semibold">{email.subject}</p>
+            <p className={email.is_unread ? "font-bold text-white" : "font-semibold"}>
+              {email.subject}
+            </p>
             <p className="text-sm text-blue-400 mt-1">
               AI Summary: {email.summary}
             </p>

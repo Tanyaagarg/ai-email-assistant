@@ -33,7 +33,12 @@ export async function GET(request) {
   for (const msg of messages) {
     const existing = await sql`SELECT * FROM emails WHERE gmail_id = ${msg.id}`;
     if (existing.length > 0 && existing[0].thread_id && existing[0].category && existing[0].action_items && existing[0].summary !== "Summary unavailable") {
-      emails.push({ ...existing[0], actionItems: parseItems(existing[0].action_items) });
+      emails.push({
+        ...existing[0],
+        actionItems: parseItems(existing[0].action_items),
+        is_unread: existing[0].is_unread || false,
+        is_starred: existing[0].is_starred || false,
+      });
       continue;
     }
 
@@ -45,15 +50,18 @@ export async function GET(request) {
     const subject = headers.find((h) => h.name === "Subject")?.value || "No Subject";
     const from = headers.find((h) => h.name === "From")?.value || "Unknown";
     const threadId = data.threadId;
+    const labelIds = data.labelIds || [];
+    const isUnread = labelIds.includes("UNREAD");
+    const isStarred = labelIds.includes("STARRED");
 
     const { summary, priority, deadline, category, actionItems } = await analyzeFullEmail(subject, from, data.snippet);
     const actionItemsJson = JSON.stringify(actionItems);
 
-    await sql`INSERT INTO emails (user_email, gmail_id, thread_id, subject, from_address, snippet, summary, priority, deadline, category, action_items)
-      VALUES (${session.user.email}, ${msg.id}, ${threadId}, ${subject}, ${from}, ${data.snippet}, ${summary}, ${priority}, ${deadline}, ${category}, ${actionItemsJson})
-      ON CONFLICT (gmail_id) DO UPDATE SET thread_id = ${threadId}, summary = ${summary}, priority = ${priority}, deadline = ${deadline}, category = ${category}, action_items = ${actionItemsJson}`;
+    await sql`INSERT INTO emails (user_email, gmail_id, thread_id, subject, from_address, snippet, summary, priority, deadline, category, action_items, is_unread, is_starred)
+      VALUES (${session.user.email}, ${msg.id}, ${threadId}, ${subject}, ${from}, ${data.snippet}, ${summary}, ${priority}, ${deadline}, ${category}, ${actionItemsJson}, ${isUnread}, ${isStarred})
+      ON CONFLICT (gmail_id) DO UPDATE SET thread_id = ${threadId}, summary = ${summary}, priority = ${priority}, deadline = ${deadline}, category = ${category}, action_items = ${actionItemsJson}, is_unread = ${isUnread}, is_starred = ${isStarred}`;
 
-    emails.push({ gmail_id: msg.id, thread_id: threadId, subject, from_address: from, snippet: data.snippet, summary, priority, deadline, category, actionItems });
+    emails.push({ gmail_id: msg.id, thread_id: threadId, subject, from_address: from, snippet: data.snippet, summary, priority, deadline, category, actionItems, is_unread: isUnread, is_starred: isStarred });
   }
 
   return Response.json({ emails, nextPageToken });

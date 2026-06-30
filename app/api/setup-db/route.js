@@ -9,5 +9,7 @@ export async function GET() {
   await sql`ALTER TABLE emails ADD COLUMN IF NOT EXISTS thread_id TEXT`;
   await sql`ALTER TABLE emails ADD COLUMN IF NOT EXISTS category TEXT`;
   await sql`ALTER TABLE emails ADD COLUMN IF NOT EXISTS action_items TEXT`;
+  await sql`ALTER TABLE emails ADD COLUMN IF NOT EXISTS is_unread BOOLEAN DEFAULT FALSE`;
+  await sql`ALTER TABLE emails ADD COLUMN IF NOT EXISTS is_starred BOOLEAN DEFAULT FALSE`;
   return Response.json({ message: "Database tables created successfully!" });
 }
