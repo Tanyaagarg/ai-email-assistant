@@ -132,6 +132,17 @@ export default function InboxPage() {
     }
   };
 
+  const handleSnooze = async (email) => {
+    const res = await fetch(`/api/emails/${email.gmail_id}/snooze`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ hours: 24 }),
+    });
+    if (res.ok) {
+      setEmails((prev) => prev.filter((e) => e.gmail_id !== email.gmail_id));
+    }
+  };
+
   const handleCompose = async () => {
     setComposeSending(true);
     const res = await fetch("/api/compose", {
@@ -204,7 +215,7 @@ export default function InboxPage() {
           >
             Do First 🔥
           </button>
-                    <button
+          <button
             onClick={() => router.push("/todo")}
             className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700"
           >
@@ -424,6 +435,22 @@ export default function InboxPage() {
                 >
                   Delete
                 </button>
+                <button
+                  onClick={() => handleSnooze(email)}
+                  className="text-xs text-purple-400 hover:text-purple-300"
+                >
+                  Snooze 💤
+                </button>
+                {email.unsubscribe_link && (
+                  <a
+                    href={email.unsubscribe_link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xs text-gray-400 hover:text-gray-200"
+                  >
+                    Unsubscribe
+                  </a>
+                )}
               </div>
             </div>
             <p className="text-sm text-gray-400">{email.from_address}</p>
