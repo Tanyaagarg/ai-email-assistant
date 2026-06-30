@@ -1,29 +1,19 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import Groq from "groq-sdk";
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
+const MODEL = "llama-3.1-8b-instant";
 
-export async function summarizeEmail(subject, from, snippet) {
-  try {
-    const prompt = `Summarize this email in one short sentence (max 15 words):\nFrom: ${from}\nSubject: ${subject}\nPreview: ${snippet}`;
-    const result = await model.generateContent(prompt);
-    return result.response.text().trim();
-  } catch (error) {
-    return "Summary unavailable";
-  }
-}
-
-export async function analyzeEmail(subject, from, snippet) {
+export async function analyzeFullEmail(subject, from, snippet) {
   try {
     const prompt = `Analyze this email and respond in exactly this JSON format:
-{"priority": "High", "deadline": "none"}
+{"summary": "one short sentence", "priority": "High", "deadline": "none", "category": "Updates"}
 
-Priority must be one of: High, Medium, Low
-- High: urgent, action required, deadlines, important alerts
-- Medium: needs response but not urgent
-- Low: newsletters, promotions, notifications
-
-Deadline: extract any deadline mentioned (e.g. "by Friday", "due June 30") or write "none"
+- summary: one short sentence (max 15 words) describing the email
+- priority: must be one of: High, Medium, Low
+  (High = urgent/action needed/deadlines, Medium = needs response, Low = newsletters/promotions)
+- deadline: any deadline mentioned (e.g. "by Friday") or "none"
+- category: must be one of: Work, Personal, Promotions, Social, Updates
+  (Work = jobs/meetings/projects, Personal = friends/family, Promotions = sales/marketing, Social = LinkedIn/Instagram/social networks, Updates = receipts/notifications/newsletters)
 
 Email:
 From: ${from}
@@ -31,12 +21,23 @@ Subject: ${subject}
 Preview: ${snippet}
 
 Respond with only the JSON, nothing else.`;
-    const result = await model.generateContent(prompt);
-    const text = result.response.text().trim();
-    const json = JSON.parse(text);
-    return { priority: json.priority || "Medium", deadline: json.deadline || "none" };
+
+    const completion = await groq.chat.completions.create({
+      model: MODEL,
+      messages: [{ role: "user", content: prompt }],
+      response_format: { type: "json_object" },
+    });
+
+    const json = JSON.parse(completion.choices[0].message.content);
+    return {
+      summary: json.summary || "Summary unavailable",
+      priority: json.priority || "Medium",
+      deadline: json.deadline || "none",
+      category: json.category || "Updates",
+    };
   } catch (error) {
-    return { priority: "Medium", deadline: "none" };
+    console.log("Groq error:", error.message);
+    return { summary: "Summary unavailable", priority: "Medium", deadline: "none", category: "Updates" };
   }
 }
 
@@ -49,8 +50,13 @@ Subject: ${subject}
 Preview: ${snippet}
 
 Write only the reply text, no subject line, no "Dear" or sign-off needed.`;
-    const result = await model.generateContent(prompt);
-    return result.response.text().trim();
+
+    const completion = await groq.chat.completions.create({
+      model: MODEL,
+      messages: [{ role: "user", content: prompt }],
+    });
+
+    return completion.choices[0].message.content.trim();
   } catch (error) {
     return "Thank you for your email. I will get back to you shortly.";
   }

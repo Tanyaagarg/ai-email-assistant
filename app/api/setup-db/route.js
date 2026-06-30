@@ -7,5 +7,6 @@ export async function GET() {
   await sql`ALTER TABLE emails ADD COLUMN IF NOT EXISTS priority TEXT`;
   await sql`ALTER TABLE emails ADD COLUMN IF NOT EXISTS deadline TEXT`;
   await sql`ALTER TABLE emails ADD COLUMN IF NOT EXISTS thread_id TEXT`;
+  await sql`ALTER TABLE emails ADD COLUMN IF NOT EXISTS category TEXT`;
   return Response.json({ message: "Database tables created successfully!" });
 }

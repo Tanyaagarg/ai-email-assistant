@@ -18,6 +18,7 @@ export default function InboxPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [nextPageToken, setNextPageToken] = useState(null);
   const [loadingMore, setLoadingMore] = useState(false);
+  const [activeCategory, setActiveCategory] = useState("All");
 
   useEffect(() => {
     if (status === "unauthenticated") { router.push("/login"); }
@@ -97,11 +98,24 @@ export default function InboxPage() {
     return "bg-green-500";
   };
 
-  const filteredEmails = emails.filter((email) =>
-    email.subject?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    email.from_address?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    email.snippet?.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const categoryIcon = (category) => {
+    if (category === "Work") return "💼";
+    if (category === "Personal") return "👤";
+    if (category === "Promotions") return "🛍️";
+    if (category === "Social") return "👥";
+    return "📬";
+  };
+
+  const categories = ["All", "Work", "Personal", "Promotions", "Social", "Updates"];
+
+  const filteredEmails = emails.filter((email) => {
+    const matchesSearch =
+      email.subject?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      email.from_address?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      email.snippet?.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesCategory = activeCategory === "All" || email.category === activeCategory;
+    return matchesSearch && matchesCategory;
+  });
 
   return (
     <div className="p-8">
@@ -113,13 +127,26 @@ export default function InboxPage() {
         </div>
       </div>
       <p className="mb-4">Welcome, {session?.user?.name}!</p>
+
       <input
         type="text"
         placeholder="Search emails..."
         value={searchQuery}
         onChange={(e) => setSearchQuery(e.target.value)}
-        className="w-full bg-gray-800 text-white p-3 rounded-lg mb-6 border border-gray-700 focus:outline-none focus:border-blue-500"
+        className="w-full bg-gray-800 text-white p-3 rounded-lg mb-4 border border-gray-700 focus:outline-none focus:border-blue-500"
       />
+
+      <div className="flex gap-2 mb-6 flex-wrap">
+        {categories.map((cat) => (
+          <button
+            key={cat}
+            onClick={() => setActiveCategory(cat)}
+            className={`px-3 py-1 rounded-full text-sm ${activeCategory === cat ? "bg-blue-600 text-white" : "bg-gray-800 text-gray-400 hover:bg-gray-700"}`}
+          >
+            {cat}
+          </button>
+        ))}
+      </div>
 
       {viewingEmail && (
         <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
@@ -174,6 +201,9 @@ export default function InboxPage() {
               <div className="flex items-center gap-2 mb-1">
                 <span className={`text-xs text-white px-2 py-0.5 rounded-full ${priorityColor(email.priority)}`}>
                   {email.priority || "Medium"}
+                </span>
+                <span className="text-xs text-gray-400">
+                  {categoryIcon(email.category)} {email.category || "Updates"}
                 </span>
                 {email.deadline && email.deadline !== "none" && (
                   <span className="text-xs text-orange-400">Deadline: {email.deadline}</span>
