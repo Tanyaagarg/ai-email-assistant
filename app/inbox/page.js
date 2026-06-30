@@ -204,11 +204,17 @@ export default function InboxPage() {
           >
             Do First 🔥
           </button>
-          <button
+                    <button
             onClick={() => router.push("/todo")}
             className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700"
           >
             To-Do ✅
+          </button>
+          <button
+            onClick={() => router.push("/analytics")}
+            className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700"
+          >
+            Analytics 📊
           </button>
           <button
             onClick={() => signOut({ callbackUrl: "/login" })}
