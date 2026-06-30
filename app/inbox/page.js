@@ -19,6 +19,11 @@ export default function InboxPage() {
   const [nextPageToken, setNextPageToken] = useState(null);
   const [loadingMore, setLoadingMore] = useState(false);
   const [activeCategory, setActiveCategory] = useState("All");
+  const [composing, setComposing] = useState(false);
+  const [composeTo, setComposeTo] = useState("");
+  const [composeSubject, setComposeSubject] = useState("");
+  const [composeBody, setComposeBody] = useState("");
+  const [composeSending, setComposeSending] = useState(false);
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -95,6 +100,25 @@ export default function InboxPage() {
     setBodyLoading(false);
   };
 
+  const handleCompose = async () => {
+    setComposeSending(true);
+    const res = await fetch("/api/compose", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ to: composeTo, subject: composeSubject, body: composeBody }),
+    });
+    setComposeSending(false);
+    if (res.ok) {
+      setComposing(false);
+      setComposeTo("");
+      setComposeSubject("");
+      setComposeBody("");
+      alert("Email sent!");
+    } else {
+      alert("Failed to send email.");
+    }
+  };
+
   if (status === "loading" || loading)
     return <div className="p-8">Loading your emails...</div>;
 
@@ -137,6 +161,12 @@ export default function InboxPage() {
         <h1 className="text-2xl font-bold">Your Inbox</h1>
         <div className="flex gap-4">
           <button
+            onClick={() => setComposing(true)}
+            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+          >
+            Compose ✉️
+          </button>
+          <button
             onClick={() => router.push("/dashboard")}
             className="bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600"
           >
@@ -177,6 +207,49 @@ export default function InboxPage() {
           </button>
         ))}
       </div>
+
+      {composing && (
+        <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
+          <div className="bg-gray-900 p-6 rounded-lg w-full max-w-lg">
+            <h2 className="text-lg font-bold mb-4">New Email</h2>
+            <input
+              type="email"
+              placeholder="To (recipient email)"
+              value={composeTo}
+              onChange={(e) => setComposeTo(e.target.value)}
+              className="w-full bg-gray-800 text-white p-3 rounded-lg mb-3 border border-gray-700 focus:outline-none focus:border-blue-500"
+            />
+            <input
+              type="text"
+              placeholder="Subject"
+              value={composeSubject}
+              onChange={(e) => setComposeSubject(e.target.value)}
+              className="w-full bg-gray-800 text-white p-3 rounded-lg mb-3 border border-gray-700 focus:outline-none focus:border-blue-500"
+            />
+            <textarea
+              placeholder="Write your message..."
+              value={composeBody}
+              onChange={(e) => setComposeBody(e.target.value)}
+              className="w-full bg-gray-800 text-white p-3 rounded-lg mb-4 h-40 resize-none border border-gray-700 focus:outline-none focus:border-blue-500"
+            />
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={() => setComposing(false)}
+                className="px-4 py-2 bg-gray-700 rounded-lg hover:bg-gray-600"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleCompose}
+                disabled={composeSending}
+                className="px-4 py-2 bg-blue-600 rounded-lg hover:bg-blue-500 disabled:opacity-50"
+              >
+                {composeSending ? "Sending..." : "Send"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {viewingEmail && (
         <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
