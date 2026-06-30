@@ -3,15 +3,21 @@ import { authOptions } from "../../lib/auth";
 import sql from "../../lib/db";
 import { summarizeEmail, analyzeEmail } from "../../lib/gemini";
 
-export async function GET() {
+export async function GET(request) {
   const session = await getServerSession(authOptions);
   if (!session) return Response.json({ error: "Not authenticated" }, { status: 401 });
 
-  const listResponse = await fetch("https://gmail.googleapis.com/gmail/v1/users/me/messages?maxResults=10", {
+  const { searchParams } = new URL(request.url);
+  const pageToken = searchParams.get("pageToken") || "";
+
+  const url = `https://gmail.googleapis.com/gmail/v1/users/me/messages?maxResults=10${pageToken ? `&pageToken=${pageToken}` : ""}`;
+
+  const listResponse = await fetch(url, {
     headers: { Authorization: `Bearer ${session.accessToken}` },
   });
   const listData = await listResponse.json();
   const messages = listData.messages || [];
+  const nextPageToken = listData.nextPageToken || null;
 
   const emails = await Promise.all(
     messages.map(async (msg) => {
@@ -40,5 +46,5 @@ export async function GET() {
     })
   );
 
-  return Response.json({ emails });
+  return Response.json({ emails, nextPageToken });
 }
