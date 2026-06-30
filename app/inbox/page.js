@@ -15,6 +15,7 @@ export default function InboxPage() {
   const [viewingEmail, setViewingEmail] = useState(null);
   const [emailBody, setEmailBody] = useState({ content: "", isHtml: false });
   const [bodyLoading, setBodyLoading] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -109,6 +110,13 @@ export default function InboxPage() {
         </div>
       </div>
       <p className="mb-4">Welcome, {session?.user?.name}!</p>
+      <input
+        type="text"
+        placeholder="Search emails..."
+        value={searchQuery}
+        onChange={(e) => setSearchQuery(e.target.value)}
+        className="w-full bg-gray-800 text-white p-3 rounded-lg mb-6 border border-gray-700 focus:outline-none focus:border-blue-500"
+      />
 
       {viewingEmail && (
         <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
@@ -195,53 +203,64 @@ export default function InboxPage() {
       )}
 
       <div>
-        {emails.map((email) => (
-          <div
-            key={email.gmail_id}
-            className="border border-gray-700 p-4 mb-2 rounded"
-          >
-            <div className="flex justify-between items-start">
-              <div className="flex items-center gap-2 mb-1">
-                <span
-                  className={`text-xs text-white px-2 py-0.5 rounded-full ${priorityColor(email.priority)}`}
-                >
-                  {email.priority || "Medium"}
-                </span>
-                {email.deadline && email.deadline !== "none" && (
-                  <span className="text-xs text-orange-400">
-                    Deadline: {email.deadline}
+        {emails
+          .filter(
+            (email) =>
+              email.subject
+                ?.toLowerCase()
+                .includes(searchQuery.toLowerCase()) ||
+              email.from_address
+                ?.toLowerCase()
+                .includes(searchQuery.toLowerCase()) ||
+              email.snippet?.toLowerCase().includes(searchQuery.toLowerCase()),
+          )
+          .map((email) => (
+            <div
+              key={email.gmail_id}
+              className="border border-gray-700 p-4 mb-2 rounded"
+            >
+              <div className="flex justify-between items-start">
+                <div className="flex items-center gap-2 mb-1">
+                  <span
+                    className={`text-xs text-white px-2 py-0.5 rounded-full ${priorityColor(email.priority)}`}
+                  >
+                    {email.priority || "Medium"}
                   </span>
-                )}
+                  {email.deadline && email.deadline !== "none" && (
+                    <span className="text-xs text-orange-400">
+                      Deadline: {email.deadline}
+                    </span>
+                  )}
+                </div>
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => handleView(email)}
+                    className="text-xs text-green-400 hover:text-green-300"
+                  >
+                    View
+                  </button>
+                  <button
+                    onClick={() => handleReply(email)}
+                    className="text-xs text-blue-400 hover:text-blue-300"
+                  >
+                    Reply
+                  </button>
+                  <button
+                    onClick={() => handleDelete(email.gmail_id)}
+                    className="text-xs text-red-400 hover:text-red-300"
+                  >
+                    Delete
+                  </button>
+                </div>
               </div>
-              <div className="flex gap-3">
-                <button
-                  onClick={() => handleView(email)}
-                  className="text-xs text-green-400 hover:text-green-300"
-                >
-                  View
-                </button>
-                <button
-                  onClick={() => handleReply(email)}
-                  className="text-xs text-blue-400 hover:text-blue-300"
-                >
-                  Reply
-                </button>
-                <button
-                  onClick={() => handleDelete(email.gmail_id)}
-                  className="text-xs text-red-400 hover:text-red-300"
-                >
-                  Delete
-                </button>
-              </div>
+              <p className="text-sm text-gray-400">{email.from_address}</p>
+              <p className="font-semibold">{email.subject}</p>
+              <p className="text-sm text-blue-400 mt-1">
+                AI Summary: {email.summary}
+              </p>
+              <p className="text-sm text-gray-400 mt-1">{email.snippet}</p>
             </div>
-            <p className="text-sm text-gray-400">{email.from_address}</p>
-            <p className="font-semibold">{email.subject}</p>
-            <p className="text-sm text-blue-400 mt-1">
-              AI Summary: {email.summary}
-            </p>
-            <p className="text-sm text-gray-400 mt-1">{email.snippet}</p>
-          </div>
-        ))}
+          ))}
       </div>
     </div>
   );
