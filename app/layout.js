@@ -9,8 +9,8 @@ const poppins = Poppins({
 });
 
 export const metadata = {
-  title: "AI Email Assistant",
-  description: "Read, prioritize, and act on your Gmail with AI.",
+  title: "MailMind — The mind for your inbox",
+  description: "AI that reads, prioritizes, and organizes your Gmail.",
 };
 
 const themeScript = `

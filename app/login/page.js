@@ -1,6 +1,6 @@
 "use client";
 import { signIn } from "next-auth/react";
-import { Mail, Sparkles, Flame, ListChecks, BarChart3 } from "lucide-react";
+import { Sparkles, Flame, ListChecks, BarChart3 } from "lucide-react";
 import ThemeToggle from "../components/ThemeToggle";
 
 export default function LoginPage() {
@@ -11,9 +11,10 @@ export default function LoginPage() {
       </div>
 
       <div className="w-full max-w-md bg-card border border-line rounded-3xl p-8 text-center">
-                <img src="/logo.svg" alt="MailMind" className="w-16 h-16 mx-auto mb-5" />
+        <img src="/logo.svg" alt="MailMind" className="w-16 h-16 mx-auto mb-5" />
 
-        <h1 className="text-2xl font-semibold mb-2">AI Email Assistant</h1>
+        <h1 className="text-3xl font-bold mb-1">Mail<span className="text-accent-soft">Mind</span></h1>
+        <p className="text-accent-soft text-sm font-medium mb-3">The mind for your inbox</p>
         <p className="text-muted text-sm mb-7 leading-relaxed">
           Let AI read, prioritize, summarize, and act on your Gmail — so you only focus on what matters.
         </p>

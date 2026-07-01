@@ -1,7 +1,7 @@
 "use client";
 import { useSession, signOut } from "next-auth/react";
 import { usePathname, useRouter } from "next/navigation";
-import { Inbox, CheckSquare, BarChart3, LogOut, Mail } from "lucide-react";
+import { Inbox, CheckSquare, BarChart3, LogOut } from "lucide-react";
 import ThemeToggle from "./ThemeToggle";
 
 const nav = [
@@ -19,8 +19,11 @@ export default function Shell({ title, actions, children }) {
     <div className="min-h-screen flex bg-bg text-content">
       <aside className="w-60 shrink-0 border-r border-line bg-card flex flex-col p-4 sticky top-0 h-screen">
         <div className="flex items-center gap-2 px-2 mb-8">
-                    <img src="/logo.svg" alt="MailMind" className="w-9 h-9" />
-          <span className="font-semibold text-base">AI Email Assistant</span>
+          <img src="/logo.svg" alt="MailMind" className="w-9 h-9" />
+          <div className="leading-tight">
+            <div className="font-bold text-lg">Mail<span className="text-accent-soft">Mind</span></div>
+            <div className="text-[10px] text-muted">The mind for your inbox</div>
+          </div>
         </div>
 
         <nav className="flex flex-col gap-1 flex-1">
