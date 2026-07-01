@@ -19,9 +19,7 @@ export default function Shell({ title, actions, children }) {
     <div className="min-h-screen flex bg-bg text-content">
       <aside className="w-60 shrink-0 border-r border-line bg-card flex flex-col p-4 sticky top-0 h-screen">
         <div className="flex items-center gap-2 px-2 mb-8">
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-accent to-accent2 flex items-center justify-center text-accent-text">
-            <Mail size={20} />
-          </div>
+                    <img src="/logo.svg" alt="MailMind" className="w-9 h-9" />
           <span className="font-semibold text-base">AI Email Assistant</span>
         </div>
 

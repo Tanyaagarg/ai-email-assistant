@@ -11,9 +11,7 @@ export default function LoginPage() {
       </div>
 
       <div className="w-full max-w-md bg-card border border-line rounded-3xl p-8 text-center">
-        <div className="w-16 h-16 mx-auto mb-5 rounded-2xl bg-gradient-to-br from-accent to-accent2 flex items-center justify-center text-accent-text">
-          <Mail size={32} />
-        </div>
+                <img src="/logo.svg" alt="MailMind" className="w-16 h-16 mx-auto mb-5" />
 
         <h1 className="text-2xl font-semibold mb-2">AI Email Assistant</h1>
         <p className="text-muted text-sm mb-7 leading-relaxed">
