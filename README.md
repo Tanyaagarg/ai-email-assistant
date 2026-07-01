@@ -1,6 +1,6 @@
 <div align="center">
 
-<h1>📬 AI Email Assistant</h1>
+<h1>📬 MailMind</h1>
 
 <h3>Your inbox, understood by AI.</h3>
 
@@ -28,7 +28,7 @@
 <h2>✨ Overview</h2>
 
 <p>
-<b>AI Email Assistant</b> connects to your Gmail and uses AI to turn a chaotic inbox into an organized, actionable workspace. It doesn't just <i>show</i> your emails — it <b>understands</b> them: summarizing each one, flagging what's urgent, sorting them into categories, extracting your to-dos, and drafting replies for you.
+<b>MailMind</b> connects to your Gmail and uses AI to turn a chaotic inbox into an organized, actionable workspace. It doesn't just <i>show</i> your emails — it <b>understands</b> them: summarizing each one, flagging what's urgent, sorting them into categories, extracting your to-dos, and drafting replies for you.
 </p>
 
 <p>🔗 <b>Live app →</b> <a href="https://ai-email-assistant-theta-two.vercel.app">ai-email-assistant-theta-two.vercel.app</a></p>
