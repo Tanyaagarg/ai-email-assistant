@@ -7,7 +7,7 @@ export async function GET() {
   if (!session) return Response.json({ error: "Not authenticated" }, { status: 401 });
 
   const rows = await sql`
-    SELECT gmail_id, subject, from_address, deadline, action_items
+    SELECT gmail_id, subject, from_address, deadline, priority, action_items
     FROM emails
     WHERE user_email = ${session.user.email}
     AND action_items IS NOT NULL
@@ -29,6 +29,7 @@ export async function GET() {
           subject: row.subject,
           from: row.from_address,
           deadline: row.deadline,
+          priority: row.priority,
           gmail_id: row.gmail_id,
         });
       });
@@ -54,7 +55,7 @@ export async function DELETE(request) {
     items = [];
   }
 
-  const updated = items.filter((item) => item !== text);
+  const updated = items.filter((i) => i !== text);
   await sql`UPDATE emails SET action_items = ${JSON.stringify(updated)} WHERE gmail_id = ${gmail_id} AND user_email = ${session.user.email}`;
 
   return Response.json({ message: "Task deleted" });

@@ -1,26 +1,65 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --bg: #fffaf0;
+  --card: #ffffff;
+  --card2: #fef3e2;
+  --content: #1a1206;
+  --muted: #8a7a5f;
+  --line: #f0e2cf;
+  --accent: #f59e0b;
+  --accent-2: #f97316;
+  --accent-text: #1a1206;
+  --accent-soft: #b45309;
+}
+
+.dark {
+  --bg: #14100a;
+  --card: #1d1810;
+  --card2: #14100a;
+  --content: #f3f4f6;
+  --muted: #998c70;
+  --line: #332a1a;
+  --accent: #f59e0b;
+  --accent-2: #f97316;
+  --accent-text: #1a1206;
+  --accent-soft: #fbbf24;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-bg: var(--bg);
+  --color-card: var(--card);
+  --color-card2: var(--card2);
+  --color-content: var(--content);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-accent: var(--accent);
+  --color-accent2: var(--accent-2);
+  --color-accent-text: var(--accent-text);
+  --color-accent-soft: var(--accent-soft);
+  --font-sans: var(--font-poppins);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--bg);
+  color: var(--content);
+  font-family: var(--font-poppins), sans-serif;
+}
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0 1000px var(--card) inset;
+  -webkit-text-fill-color: var(--content);
+  caret-color: var(--content);
+  transition: background-color 9999s ease-in-out 0s;
+}
+
+button:not(:disabled),
+a,
+[role="button"] {
+  cursor: pointer;
 }
